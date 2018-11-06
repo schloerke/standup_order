@@ -24,7 +24,7 @@ shinyApp(
   ),
   server = function(input, output, session) {
 
-    auto_open_cutoff_sec <- 30
+    cutoffs <- c(-10, 120)
 
     standup_time <- function() {
       lubridate::ymd_hms(paste(Sys.Date(), "17-00-00"), tz = "UTC")
@@ -40,7 +40,8 @@ shinyApp(
     })
 
     should_open <- reactive({
-      abs(as.numeric(time_diff())) < auto_open_cutoff_sec
+      time_val <- as.numeric(time_diff())
+      time_val >= cutoffs[1] && time_val <= cutoffs[2]
     })
 
     auto_label <- reactive({
@@ -51,8 +52,8 @@ shinyApp(
           ret <- "Automatically Open Zoom: ~ "
 
           mins <- as.numeric(floor(time_diff() / 60))
-          if (mins <= 2) {
-            ret <- paste0(ret, as.numeric(floor(time_diff())) - auto_open_cutoff_sec, " s")
+          if (mins <= 2 && mins >= 0) {
+            ret <- paste0(ret, as.numeric(floor(time_diff())) + cutoffs[1], " s")
           } else if (mins < 90 && mins >= 0) {
             ret <- paste0(ret, mins, " mins")
           } else {
@@ -81,6 +82,7 @@ shinyApp(
 
     observe({
       if (all(input$auto_open, should_open())) {
+        # reactive plus function call
         auto_open_zoom_fn()()
       }
     })
@@ -90,6 +92,9 @@ shinyApp(
     })
 
     output$team_order <- renderText({
+      # update every hour
+      invalidateLater(1000 * 60 * 60 * 1)
+
       set.seed(as.integer(Sys.Date()))
       paste(
         seq_along(input$team_names), ". ", sample(input$team_names),
