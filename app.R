@@ -16,8 +16,8 @@ shinyApp(
       "auto_open", "Automatically Open Zoom",
       value = TRUE
     ),
-    checkboxInput(
-      "open_zoom", "Open Standup Zoom: ",
+    actionButton(
+      "open_zoom", "Open Standup Zoom",
       value = FALSE
     ),
     uiOutput("zoom_iframe")
@@ -48,23 +48,16 @@ shinyApp(
         if (should_open()) {
           "Automatically Open Zoom: Opening!"
         } else {
-          ret <- paste0(
-            "Automatically Open Zoom: ~ "
-            # ,
-            # format(
-            #   standup_time(),
-            #   format = "%I:%M:%S %p",
-            #   tz = lubridate::tz(Sys.time())
-            # )
-          )
+          ret <- "Automatically Open Zoom: ~ "
 
           mins <- as.numeric(floor(time_diff() / 60))
-          if (time_diff() < 60 && time_diff() >= 0) {
-
+          if (mins <= 2) {
+            ret <- paste0(ret, as.numeric(floor(time_diff())) - auto_open_cutoff_sec, " s")
+          } else if (mins < 90 && mins >= 0) {
             ret <- paste0(ret, mins, " mins")
           } else {
-            hours <- round(mins / 60) %% 24
-            ret <- paste0(ret, hours, " hours")
+            hours <- (round(mins / 60) - 1) %% 24 + 1
+            ret <- paste0(ret, hours, " hour", if (hours > 1) "s")
           }
 
           ret
@@ -74,11 +67,21 @@ shinyApp(
       }
     })
 
+    auto_open_zoom_fn <- reactive({
+      # invlidate every 4 hours
+      invalidateLater(1000 * 60 * 60 * 4)
+
+      has_called <- FALSE
+      function() {
+        if (has_called) return()
+        has_called <<- TRUE
+        open_zoom_fn()
+      }
+    })
+
     observe({
-      if (input$auto_open && (!input$open_zoom)) {
-        if (should_open()) {
-          updateCheckboxInput(session, "open_zoom", value = TRUE)
-        }
+      if (all(input$auto_open, should_open())) {
+        auto_open_zoom_fn()()
       }
     })
 
@@ -94,13 +97,24 @@ shinyApp(
       )
     })
 
-    output$zoom_iframe <- renderUI({
-      if (!input$open_zoom) return(NULL)
-      tags$iframe(
-        width = "500px", height = "500px",
-        src = "https://bit.ly/shiny-standup"
-        # src = "https://bit.ly/barret-zoom"
-      )
+    open_zoom_fn <- function() {
+      output$zoom_iframe <- renderUI({
+        tags$iframe(
+          width = "500px", height = "500px",
+          src = "https://bit.ly/shiny-standup"
+          # src = "https://bit.ly/barret-zoom"
+        )
+      })
+
+      # close iframe N seconds later
+      later::later(function() {
+        output$zoom_iframe <- NULL
+      }, 60)
+    }
+    # if button is clicked, open zoom
+    observeEvent(input$open_zoom, {
+      open_zoom_fn()
     })
+
   }
 )
