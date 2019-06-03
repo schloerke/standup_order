@@ -1,17 +1,25 @@
 library(shiny)
+# library(reactlog)
+# options(shiny.reactlog = TRUE)
+
 
 shinyTeam <- readLines("members.txt")
 shinyApp(
   ui =  fluidPage(
+    # htmltools::tags$head(
+    #   htmltools::tags$style(
+    #     ""
+    #   )
+    # ),
     h1("Shiny Standup Order"),
-    selectizeInput(
-      "team_names",
-      "Names: ",
-      shinyTeam,
-      selected = shinyTeam,
-      multiple = TRUE
-    ),
-    verbatimTextOutput("team_order"),
+    # selectizeInput(
+    #   "team_names",
+    #   "Names: ",
+    #   shinyTeam,
+    #   selected = shinyTeam,
+    #   multiple = TRUE
+    # ),
+    uiOutput("team_order"),
     checkboxInput(
       "auto_open", "Automatically Open Zoom",
       value = TRUE
@@ -24,10 +32,10 @@ shinyApp(
   ),
   server = function(input, output, session) {
 
-    cutoffs <- c(-10, 120)
+    cutoffs <- c(-10, 60 * 5)
 
     standup_time <- function() {
-      lubridate::ymd_hms(paste(Sys.Date(), "17-00-00"), tz = "UTC")
+      lubridate::ymd_hms(paste(Sys.Date(), "12-00-00"), tz = "America/New_York")
     }
     now <- function() {
       Sys.time()
@@ -91,14 +99,15 @@ shinyApp(
       updateCheckboxInput(session, "auto_open", label = auto_label())
     })
 
-    output$team_order <- renderText({
+    output$team_order <- renderUI({
       # update every hour
       invalidateLater(1000 * 60 * 60 * 1)
 
       set.seed(as.integer(Sys.Date()))
-      paste(
-        seq_along(input$team_names), ". ", sample(input$team_names),
-        sep = "", collapse = "\n"
+      team <- sample(shinyTeam)
+      do.call(
+        htmltools::tags$ol,
+        c(lapply(team, tags$li), list(style = "padding-inline-start: 20px;"))
       )
     })
 

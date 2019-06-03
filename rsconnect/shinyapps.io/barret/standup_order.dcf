@@ -5,8 +5,6 @@ account: barret
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 554100
-bundleId: 1685706
+bundleId: 2127138
 url: https://barret.shinyapps.io/standup_order/
-when: 1541525473.32262
-asMultiple: FALSE
-asStatic: FALSE
+when: 1559572686.33547
