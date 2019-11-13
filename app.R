@@ -35,7 +35,7 @@ shinyApp(
     cutoffs <- c(-10, 60 * 5)
 
     standup_time <- function() {
-      lubridate::ymd_hms(paste(Sys.Date(), "12-00-00"), tz = "America/New_York")
+      lubridate::ymd_hms(paste(Sys.Date(), "12-15-00"), tz = "America/New_York")
     }
     now <- function() {
       Sys.time()
@@ -115,7 +115,7 @@ shinyApp(
       output$zoom_iframe <- renderUI({
         tags$iframe(
           width = "500px", height = "500px",
-          src = "https://bit.ly/shiny-standup"
+          src = "https://zoom.us/j/2341255846"
           # src = "https://bit.ly/barret-zoom"
         )
       })
