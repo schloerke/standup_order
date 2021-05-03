@@ -115,7 +115,7 @@ shinyApp(
       output$zoom_iframe <- renderUI({
         tags$iframe(
           width = "500px", height = "500px",
-          src = "https://zoom.us/j/2341255846"
+          src = "https://zoom.us/j/2341255846?pwd=emZUL3dESDNDLy9iYUFGV1FGQUR4QT09"
           # src = "https://bit.ly/barret-zoom"
         )
       })
