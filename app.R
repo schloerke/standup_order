@@ -5,30 +5,31 @@ library(shiny)
 
 shinyTeam <- readLines("members.txt")
 shinyApp(
-  ui =  fluidPage(
-    # htmltools::tags$head(
-    #   htmltools::tags$style(
-    #     ""
-    #   )
-    # ),
-    h1("Shiny Standup Order"),
-    # selectizeInput(
-    #   "team_names",
-    #   "Names: ",
-    #   shinyTeam,
-    #   selected = shinyTeam,
-    #   multiple = TRUE
-    # ),
-    uiOutput("team_order"),
-    checkboxInput(
-      "auto_open", "Automatically Open Zoom",
-      value = TRUE
-    ),
-    actionButton(
-      "open_zoom", "Open Standup Zoom",
-      value = FALSE
-    ),
-    uiOutput("zoom_iframe")
+  ui = fillPage(
+    fillRow(
+      flex=c(2,10),
+      fillCol(
+        flex = NA,
+        style="padding:10px;",
+        titlePanel("Shiny Standup Order"),
+        uiOutput("team_order"),
+        checkboxInput(
+          "auto_open", "Automatically Open Zoom",
+          value = TRUE
+        ),
+        actionButton(
+          "open_zoom", "Open Standup Zoom",
+          value = FALSE
+        ),
+        uiOutput("zoom_iframe")
+      ),
+      fillCol(
+        tags$iframe(
+          style="width: 100%; height: 100%; border: lightgrey; border-style: dashed; border-width: thin;",
+          src="https://connect.rstudioservices.com/content/4234/"
+        )
+      )
+    )
   ),
   server = function(input, output, session) {
 
@@ -114,16 +115,16 @@ shinyApp(
     open_zoom_fn <- function() {
       output$zoom_iframe <- renderUI({
         tags$iframe(
-          width = "500px", height = "500px",
+          style="overflow: scroll;",
+          width = "100px", height = "100px",
           src = "https://zoom.us/j/2341255846?pwd=emZUL3dESDNDLy9iYUFGV1FGQUR4QT09"
-          # src = "https://bit.ly/barret-zoom"
         )
       })
 
       # close iframe N seconds later
       later::later(function() {
         output$zoom_iframe <- NULL
-      }, 60)
+      }, 15)
     }
     # if button is clicked, open zoom
     observeEvent(input$open_zoom, {
