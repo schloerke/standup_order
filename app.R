@@ -1,4 +1,5 @@
 library(shiny)
+library(promises)
 # library(reactlog)
 # options(shiny.reactlog = TRUE)
 
@@ -24,10 +25,7 @@ shinyApp(
         uiOutput("zoom_iframe")
       ),
       fillCol(
-        tags$iframe(
-          style="width: 100%; height: 100%; border: lightgrey; border-style: dashed; border-width: thin;",
-          src="https://beta.rstudioconnect.com/content/b1e2e5de-9f9a-4282-a235-0d4e0478cccf/"
-        )
+        uiOutput("dashboard", style = "top: 0; bottom: 0; left: 0; right: 0; position: absolute;")
       )
     )
   ),
@@ -130,6 +128,18 @@ shinyApp(
     observeEvent(input$open_zoom, {
       open_zoom_fn()
     })
+
+    output$dashboard <- renderUI({
+      promise_resolve(TRUE) %...>% {
+        Sys.sleep(0.25)
+      } %...>% {
+        tags$iframe(
+          style="width: 100%; height: 100%; border: lightgrey; border-style: dashed; border-width: thin;",
+          src="https://beta.rstudioconnect.com/content/b1e2e5de-9f9a-4282-a235-0d4e0478cccf/"
+        )
+      }
+    })
+
 
   }
 )
