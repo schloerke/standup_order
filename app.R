@@ -14,10 +14,10 @@ shinyApp(
         style="padding:10px;",
         titlePanel("Shiny Standup Order"),
         uiOutput("team_order"),
-        checkboxInput(
-          "auto_open", "Automatically Open Zoom",
-          value = TRUE
-        ),
+        # checkboxInput(
+        #   "auto_open", "Automatically Open Zoom",
+        #   value = TRUE
+        # ),
         actionButton(
           "open_zoom", "Open Standup Zoom",
           value = FALSE
@@ -52,6 +52,7 @@ shinyApp(
     })
 
     auto_label <- reactive({
+      req(input$auto_open)
       if (input$auto_open) {
         if (should_open()) {
           "Automatically Open Zoom: Opening!"
