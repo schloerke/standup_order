@@ -135,7 +135,8 @@ shinyApp(
       } %...>% {
         tags$iframe(
           style="width: 100%; height: 100%; border: lightgrey; border-style: dashed; border-width: thin;",
-          src="https://beta.rstudioconnect.com/content/b1e2e5de-9f9a-4282-a235-0d4e0478cccf/"
+          # src="https://beta.rstudioconnect.com/content/b1e2e5de-9f9a-4282-a235-0d4e0478cccf/"
+          src = "https://rstudio.github.io/shinycoreci/results"
         )
       }
     })
